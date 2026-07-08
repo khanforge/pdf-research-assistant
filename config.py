@@ -8,10 +8,15 @@ from functools import lru_cache
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
 
 
 class Settings(BaseSettings):
     """Centralized application settings."""
+
+    "BASE PATH"
+
+    BASE_PATH:Path = Path.cwd()
 
     model_config = SettingsConfigDict(
         env_file=".env",

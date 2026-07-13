@@ -59,13 +59,13 @@ class QdrantStore:
 
         logger.info("Collection created successfully.")
 
-def add_documents(self, documents: list[Document]) -> None:
-    """
-    Store documents in Qdrant.
-    """
+    def add_documents(self, documents: list[Document]) -> None:
+        """
+        Store documents in Qdrant.
+        """
 
-    logger.info("Indexing %d chunks...", len(documents))
+        logger.info("Indexing %d chunks...", len(documents))
 
-    self.vector_store.add_documents(documents)
+        self.vector_store.add_documents(documents)
 
-    logger.info("Indexing completed.")
+        logger.info("Indexing completed.")

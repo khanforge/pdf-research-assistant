@@ -1,14 +1,38 @@
+"""
+Document ingestion pipeline.
+"""
+
 from pathlib import Path
-from typing import Iterable
 
-from .loader import load_documents
-from .splitter import split_text
-from .embedder import embed_documents
+from ingestion.loader import PDFLoader
+from ingestion.splitter import DocumentSplitter
+from retrieval.qdrant_store import QdrantStore
+from utils.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 
-def build_ingestion_pipeline(directory: Path, chunk_size: int, overlap: int) -> dict[str, list]:
-    paths = load_documents(directory)
-    texts = [path.read_text(encoding="utf-8") for path in paths]
-    chunks = [split_text(text, chunk_size, overlap) for text in texts]
-    embeddings = [embed for document in chunks for embed in embed_documents(document)]
-    return {"paths": paths, "chunks": chunks, "embeddings": embeddings}
+class IngestionPipeline:
+    """
+    Complete document ingestion pipeline.
+    """
+
+    def __init__(self) -> None:
+        self.loader = PDFLoader()
+        self.splitter = DocumentSplitter()
+        self.store = QdrantStore()
+
+    def ingest(self, pdf_path: str | Path) -> None:
+        """
+        Ingest a PDF into Qdrant.
+        """
+
+        logger.info("Starting ingestion pipeline.")
+
+        documents = self.loader.load(pdf_path)
+
+        chunks = self.splitter.split(documents)
+
+        self.store.add_documents(chunks)
+
+        logger.info("Pipeline completed.")

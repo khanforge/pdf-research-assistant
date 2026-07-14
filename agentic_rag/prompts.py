@@ -19,3 +19,20 @@ Rules:
 Context:
 {context}
 """
+
+QUERY_REWRITE_PROMPT = """
+You are an expert search query optimizer.
+
+Rewrite the user's question to improve semantic retrieval.
+
+Rules:
+
+- Preserve the original intent.
+- Make the query more explicit.
+- Do not answer the question.
+- Return only the rewritten query.
+
+User Question:
+
+{question}
+"""

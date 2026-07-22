@@ -9,6 +9,7 @@ from functools import lru_cache
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
+from dotenv import load_dotenv
 
 
 class Settings(BaseSettings):
@@ -33,7 +34,8 @@ class Settings(BaseSettings):
     # LLM
     # ------------------------
     llm_provider: str = "google"
-    llm_model: str = "gemini-2.5-flash"
+    llm_model: str = "gemini-3.5-flash"
+    llm_model1: str = "gemini-3.1-flash-lite"
 
     # ------------------------
     # Embeddings

@@ -1,14 +1,10 @@
-from services.vectorstore import get_qdrant_client
-from config import settings
-from pprint import pprint
+from langchain_core.messages import HumanMessage
+from services.llm import get_llm
 
-client = get_qdrant_client()
+_, llm = get_llm(1)
 
-points, _ = client.scroll(
-    collection_name=settings.qdrant_collection,
-    limit=5,
-    with_payload=True,
-)
+response = llm.invoke([
+    HumanMessage(content="Reply with YES")
+])
 
-for point in points:
-    print(point.payload['metadata']["source"])
+print(response)

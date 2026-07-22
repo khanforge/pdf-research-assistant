@@ -1,7 +1,7 @@
 from agentic_rag.graph import graph
 
 state = {
-    "question": "What skills does Parvej have?",
+    "question": "Who is panda singh govinda laal?",
     "rewritten_query": "",
     "documents": [],
     "context": "",
@@ -10,6 +10,7 @@ state = {
     "retry_count": 0,
 }
 
+
 result = graph.invoke(state)
 
 print("\nOriginal Question:")
@@ -17,6 +18,8 @@ print(result["question"])
 
 print("\nRewritten Query:")
 print(result["rewritten_query"])
+
+print(result["reflection"])
 
 print("\nRetrieved Documents:")
 print(f"Total: {len(result['documents'])}")

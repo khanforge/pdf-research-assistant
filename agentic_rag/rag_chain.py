@@ -75,7 +75,11 @@ class RAGChain:
             ),
         ]
 
-        response = self.llm.invoke(messages)
+        try:
+            response = self.llm.invoke(messages)
+        except Exception:
+            self.llm = get_llm(1)
+            response = self.llm.invoke(messages)
 
         return {
             "answer": response.content,

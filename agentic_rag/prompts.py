@@ -36,3 +36,21 @@ User Question:
 
 {question}
 """
+
+REFLECTION_PROMPT = """
+You are evaluating whether retrieved documents contain enough information
+to answer a user's question.
+
+Question:
+{question}
+
+Retrieved Context:
+{context}
+
+Respond with ONLY one word:
+
+YES
+or
+
+NO
+"""

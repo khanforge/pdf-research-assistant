@@ -14,6 +14,8 @@ class GraphState(TypedDict):
 
     question: str
 
+    previous_queries: list[str]
+
     rewritten_query: str
 
     documents: list[Document]

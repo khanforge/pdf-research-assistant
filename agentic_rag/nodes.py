@@ -1,6 +1,6 @@
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from .prompts import QUERY_REWRITE_PROMPT, REFLECTION_PROMPT
+from .prompts import QUERY_REWRITE_PROMPT, REFLECTION_PROMPT, ANSWER_PROMPT
 from services.llm import get_llm
 from .state import GraphState
 from retrieval.retriever import Retriever
@@ -23,7 +23,13 @@ def rewrite_query_node(state: GraphState) -> GraphState:
     messages = [
         SystemMessage(
             content=QUERY_REWRITE_PROMPT.format(
-                question=state["question"]
+                question=state["question"],
+                previous_query = (
+                    state["previous_queries"][-1] 
+                    if state["previous_queries"]
+                    else "None"
+                ),
+                retry_count = state['retry_count']
             )
         ),
         HumanMessage(
@@ -43,7 +49,9 @@ def rewrite_query_node(state: GraphState) -> GraphState:
     except Exception as e:
         if isinstance(response.content, list):
             try:
-                state["rewritten_query"] = response.content[0]["text"]
+                rewritten_query = response.content[0]["text"]
+                state["rewritten_query"] = rewritten_query
+                state['previous_queries'].append(rewritten_query)
             except Exception as e:
                 logger.error(f"some exception happened {traceback.format_exc}\n\n response = {response.content}")
     return state
@@ -113,7 +121,7 @@ def reflection_router(state: GraphState):
 
     # Enough context -> finish
     if state["reflection"]:
-        return END
+        return "generate_answer_node"
 
     # Maximum retries reached -> finish
     if state["retry_count"] >= MAX_RETRIES:
@@ -126,5 +134,37 @@ def retry_node(state: GraphState) -> GraphState:
     logger.info("Retrying retrieval...")
 
     state["retry_count"] += 1
+
+    return state
+
+def generate_answer_node(state: GraphState) -> GraphState:
+    """
+    Generate the final answer using retrieved documents.
+    """
+
+    logger.info("Running Answer Node...")
+
+    context = "\n\n".join(
+        doc.page_content
+        for doc in state["documents"]
+    )
+
+    prompt = ANSWER_PROMPT.format(
+        question=state["question"],
+        context=context,
+    )
+
+    try:
+        response = llm.invoke(prompt)
+    except Exception:
+        fallback_model_name, fallback_llm = get_llm(1)
+        logger.info(f"Retrying with {fallback_model_name}")
+        response = fallback_llm.invoke(prompt)
+
+    try:
+        state["answer"] = response.content.strip()
+    except Exception:
+        if isinstance(response.content, list):
+            state["answer"] = response.content[0]["text"]
 
     return state

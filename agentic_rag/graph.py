@@ -3,7 +3,8 @@ from .nodes import (
     retrieve_documents_node,
     reflection_node,
     reflection_router,
-    retry_node
+    retry_node,
+    generate_answer_node
 )
 from langgraph.graph import StateGraph, START, END
 from .state import GraphState
@@ -30,12 +31,15 @@ builder.add_node(
     retry_node
 )
 
+builder.add_node(
+    "generate_answer_node",
+    generate_answer_node
+)
+
 builder.add_edge(
     "retrieve_documents",
     "reflection",
 )
-
-
 
 builder.add_edge(
     START,

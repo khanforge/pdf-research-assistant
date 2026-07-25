@@ -20,23 +20,6 @@ Context:
 {context}
 """
 
-QUERY_REWRITE_PROMPT = """
-You are an expert search query optimizer.
-
-Rewrite the user's question to improve semantic retrieval.
-
-Rules:
-
-- Preserve the original intent.
-- Make the query more explicit.
-- Do not answer the question.
-- Return only the rewritten query.
-
-User Question:
-
-{question}
-"""
-
 REFLECTION_PROMPT = """
 You are evaluating whether retrieved documents contain enough information
 to answer a user's question.
@@ -53,4 +36,41 @@ YES
 or
 
 NO
+"""
+
+ANSWER_PROMPT = """
+You are a helpful AI research assistant.
+
+Answer ONLY using the provided context.
+
+If the answer is not present, say:
+
+"I couldn't find the answer in the uploaded documents."
+
+Question:
+{question}
+
+Context:
+{context}
+
+Provide a concise and accurate answer.
+"""
+
+QUERY_REWRITE_PROMPT = """
+You are an expert search query optimizer for Retrieval-Augmented Generation (RAG).
+
+Your job is to rewrite the user's question into a concise query that is more likely to retrieve relevant document chunks.
+
+Original Question:
+{question}
+
+Previous Query:
+{previous_query}
+
+Retry Attempt:
+{retry_count}
+
+If this is a retry (retry_count > 0), generate a DIFFERENT query than the previous one. Use different wording, synonyms, or a different level of specificity to improve retrieval.
+
+Return ONLY the rewritten query.
 """

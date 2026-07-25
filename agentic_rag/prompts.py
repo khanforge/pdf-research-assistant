@@ -57,20 +57,46 @@ Provide a concise and accurate answer.
 """
 
 QUERY_REWRITE_PROMPT = """
-You are an expert search query optimizer for Retrieval-Augmented Generation (RAG).
+You are an expert search query optimizer.
 
-Your job is to rewrite the user's question into a concise query that is more likely to retrieve relevant document chunks.
+Conversation Summary:
+
+{summary}
 
 Original Question:
+
 {question}
 
 Previous Query:
+
 {previous_query}
 
 Retry Attempt:
+
 {retry_count}
 
-If this is a retry (retry_count > 0), generate a DIFFERENT query than the previous one. Use different wording, synonyms, or a different level of specificity to improve retrieval.
+Rewrite the question so it becomes an effective retrieval query.
+
+If retry_count > 0,
+generate a different query than before.
 
 Return ONLY the rewritten query.
+"""
+
+SUMMARY_PROMPT = """
+You are maintaining the long-term memory of an AI assistant.
+
+Current Conversation Summary:
+
+{summary}
+
+New Conversation Messages:
+
+{conversation}
+
+Update the summary by incorporating ONLY the important new information.
+
+Keep the summary concise (maximum 200 words).
+
+Return ONLY the updated summary.
 """

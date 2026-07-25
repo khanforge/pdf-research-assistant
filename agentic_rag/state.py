@@ -1,29 +1,26 @@
-"""
-Shared state for LangGraph.
-"""
-
 from typing import TypedDict
-
 from langchain_core.documents import Document
+from langchain_core.messages import BaseMessage
 
 
 class GraphState(TypedDict):
-    """
-    Shared state passed between nodes.
-    """
-
+    # Current user query
     question: str
 
+    # Query rewriting
+    rewritten_query: str
     previous_queries: list[str]
 
-    rewritten_query: str
-
+    # Retrieval
     documents: list[Document]
 
-    context: str
-
+    # Final answer
     answer: str
 
+    # Reflection
     reflection: bool
-
     retry_count: int
+
+    # Conversation memory
+    chat_history: list[BaseMessage]
+    conversation_summary: str

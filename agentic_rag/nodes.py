@@ -1,6 +1,6 @@
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
-from .prompts import QUERY_REWRITE_PROMPT, REFLECTION_PROMPT, ANSWER_PROMPT
+from .prompts import QUERY_REWRITE_PROMPT, REFLECTION_PROMPT, ANSWER_PROMPT, SUMMARY_PROMPT
 from services.llm import get_llm
 from .state import GraphState
 from retrieval.retriever import Retriever
@@ -11,6 +11,7 @@ from langgraph.graph import END
 model_name, llm = get_llm()
 retriever = Retriever()
 logger = getLogger(__name__)
+MEMORY_THRESHOLD = 6
 
 
 def rewrite_query_node(state: GraphState) -> GraphState:
@@ -20,17 +21,20 @@ def rewrite_query_node(state: GraphState) -> GraphState:
 
     logger.info("Running Query Rewrite Node...")
 
+    previous_query = (
+            state["previous_queries"][-1] 
+            if state["previous_queries"]
+            else "None"
+        )
+
     messages = [
         SystemMessage(
             content=QUERY_REWRITE_PROMPT.format(
-                question=state["question"],
-                previous_query = (
-                    state["previous_queries"][-1] 
-                    if state["previous_queries"]
-                    else "None"
-                ),
-                retry_count = state['retry_count']
-            )
+                    summary=state["conversation_summary"],
+                    question=state["question"],
+                    previous_query=previous_query,
+                    retry_count=state["retry_count"],
+                )
         ),
         HumanMessage(
             content=state["question"]
@@ -166,5 +170,54 @@ def generate_answer_node(state: GraphState) -> GraphState:
     except Exception:
         if isinstance(response.content, list):
             state["answer"] = response.content[0]["text"]
+
+    state["chat_history"].append(
+        HumanMessage(content=state["question"])
+    )
+    state["chat_history"].append(
+        AIMessage(content=state["answer"])
+    )
+
+    return state
+
+def memory_node(state: GraphState) -> GraphState:
+    """
+    Maintain long-term conversation memory.
+    """
+
+    logger.info("Running Memory Node...")
+
+    history = state["chat_history"]
+
+    if len(history) < MEMORY_THRESHOLD:
+        logger.info("Skipping summarization.")
+        return state
+
+    conversation = "\n".join(
+        f"{message.type}: {message.content}"
+        for message in history
+    )
+
+    prompt = SUMMARY_PROMPT.format(
+        summary=state["conversation_summary"],
+        conversation=conversation,
+    )
+
+    try:
+        response = llm.invoke(prompt)
+    except Exception:
+        _, fallback = get_llm(1)
+        response = fallback.invoke(prompt)
+
+    try:
+        state["answer"] = response.content.strip()
+    except Exception:
+        if isinstance(response.content, list):
+            state["conversation_summary"] = response.content[0]["text"]
+
+    # All buffered messages are now summarized.
+    state["chat_history"] = []
+
+    logger.info("Conversation summary updated.")
 
     return state

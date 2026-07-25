@@ -29,6 +29,7 @@ class ResearchAssistant:
         self.conversation_summary = result["conversation_summary"]
 
         return {
+            'question': question,
             "answer": result["answer"],
             "rewritten_query": result["rewritten_query"],
             "documents": result["documents"],

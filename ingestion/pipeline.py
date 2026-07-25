@@ -36,3 +36,9 @@ class IngestionPipeline:
         self.store.add_documents(chunks)
 
         logger.info("Pipeline completed.")
+
+        return { 
+            "filename": str(pdf_path),
+            "documents": len(documents),
+            "chunks": len(chunks)
+        }

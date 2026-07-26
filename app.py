@@ -83,7 +83,10 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-question = st.chat_input("Ask something about your PDF...")
+question = st.chat_input(
+    placeholder="Ask something about your PDF..." if uploaded_file else "Upload the File to start...",
+    disabled= False if uploaded_file else True
+)
 
 if question:
     st.session_state.messages.append(

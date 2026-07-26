@@ -12,3 +12,4 @@ qdrant_client==1.18.0
 streamlit==1.60.0
 sentence-transformers
 torchvision
+pymupdf

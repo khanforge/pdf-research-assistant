@@ -19,6 +19,10 @@ st.set_page_config(
     initial_sidebar_state = "auto",
 )
 
+st.title(
+    "PDF Agent 🕵️‍♀️"
+)
+
 if "assistant" not in st.session_state:
     st.session_state.assistant = ResearchAssistant()
 

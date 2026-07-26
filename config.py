@@ -45,16 +45,17 @@ class Settings(BaseSettings):
     # ------------------------
     # Qdrant
     # ------------------------
-    qdrant_host: str = "localhost"
+    qdrant_host: str = "qdrant"
     qdrant_port: int = 6333
     qdrant_collection: str = "research_documents"
+    qdrant_url: str = ""
+    qdrant_api_key: str = ""
 
     # ------------------------
     # Chunking
     # ------------------------
     chunk_size: int = 800
     chunk_overlap: int = 150
-
 
 @lru_cache
 def get_settings() -> Settings:

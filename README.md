@@ -6,6 +6,10 @@ The assistant goes beyond traditional RAG by incorporating **query rewriting, re
 
 ---
 
+## 🌐 Live Demo
+
+https://chat-ragbot.streamlit.app/
+
 ## 🚀 Features
 
 - 📑 PDF document ingestion
